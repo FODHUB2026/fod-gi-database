@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Total Daily Insulin Dose Calculator from Figuring Out Diabetes - an educational estimator for people managing or at risk of diabetes. Not medical advice.">
+<title>Total Daily Insulin Dose Calculator | Figuring Out Diabetes</title>
+</head>
+<body>
+<!-- ============================================================
+  FOD Calculator  -  Total Daily Insulin Dose Calculator
+  figuringoutdiabetes.com
+
+  USAGE IN SQUARESPACE:
+  Paste this entire block into a Code Block.
+  All styles are scoped to .fod-calc-wrapper to avoid conflicts.
+  ============================================================ -->
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;700&family=Arimo:wght@400;700&display=swap');
+
+/* -- Reset & Scoping --------------------------------------- */
+.fod-calc-wrapper *,
+.fod-calc-wrapper *::before,
+.fod-calc-wrapper *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* -- Wrapper ----------------------------------------------- */
+.fod-calc-wrapper {
+  font-family: 'Arimo', Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #1F2937;
+  background: transparent;
+  width: 100%;
+  padding: 0 16px 40px;
+}
+
+/* -- Inner container --------------------------------------- */
+.fod-calc-inner {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* -- Accent bar -------------------------------------------- */
+.fod-accent-bar {
+  height: 4px;
+  background: linear-gradient(90deg, #0D9186 0%, #0aada0 60%, #F5A108 100%);
+  border-radius: 2px;
+  margin-bottom: 28px;
+}
+
+/* -- Header ------------------------------------------------ */
+.fod-header {
+  margin-bottom: 28px;
+}
+
+.fod-header h2 {
+  font-family: 'Familjen Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: clamp(22px, 4vw, 30px);
+  color: #0D9186;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.fod-header p {
+  font-family: 'Arimo', sans-serif;
+  font-size: 15px;
+  color: #6B7280;
+  max-width: 520px;
+}
+
+/* -- Cards ------------------------------------------------- */
+.fod-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 24px;
+  margin-bottom: 16px;
+  border: 1px solid #F3F4F6;
+}
+
+.fod-card-result {
+  background: #F0FDFA;
+  border: 1px solid #CCFBF1;
+}
+
+.fod-section-label {
+  font-family: 'Familjen Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0D9186;
+  margin-bottom: 18px;
+}
+
+/* -- Input group ------------------------------------------- */
+.fod-field-label {
+  display: block;
+  font-family: 'Arimo', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.fod-field-hint {
+  font-size: 12px;
+  color: #9CA3AF;
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.fod-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.fod-input {
+  flex: 1;
+  height: 48px;
+  padding: 0 14px;
+  font-family: 'Arimo', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  background: #FFFFFF;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  -moz-appearance: textfield;
+}
+
+.fod-input::-webkit-outer-spin-button,
+.fod-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.fod-input:focus {
+  border-color: #0D9186;
+  box-shadow: 0 0 0 3px rgba(13,145,134,0.12);
+}
+
+.fod-unit-toggle {
+  display: flex;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.fod-unit-btn {
+  padding: 0 14px;
+  font-family: 'Arimo', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6B7280;
+  background: #FFFFFF;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+  outline: none;
+}
+
+.fod-unit-btn:first-child {
+  border-right: 1.5px solid #D1D5DB;
+}
+
+.fod-unit-btn.active {
+  background: #0D9186;
+  color: #FFFFFF;
+}
+
+.fod-unit-btn:not(.active):hover {
+  background: #F0FDFA;
+  color: #0D9186;
+}
+
+/* -- Field group spacing ----------------------------------- */
+.fod-field-group {
+  margin-bottom: 20px;
+}
+
+.fod-field-group:last-child {
+  margin-bottom: 0;
+}
+
+/* -- Range hint -------------------------------------------- */
+.fod-range-hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #9CA3AF;
+}
+
+/* -- Select ------------------------------------------------ */
+.fod-select {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  font-family: 'Arimo', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+  background: #FFFFFF;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fod-select:focus {
+  border-color: #0D9186;
+  box-shadow: 0 0 0 3px rgba(13,145,134,0.12);
+}
+
+/* -- Result display ---------------------------------------- */
+.fod-result-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0 20px;
+  margin-bottom: 4px;
+}
+
+.fod-result-value {
+  text-align: center;
+}
+
+.fod-result-number {
+  font-family: 'Familjen Grotesk', sans-serif;
+  font-size: clamp(36px, 8vw, 52px);
+  font-weight: 700;
+  line-height: 1;
+  transition: color 0.3s ease;
+}
+
+.fod-result-label {
+  font-size: 13px;
+  color: #6B7280;
+  margin-top: 4px;
+  font-family: 'Arimo', sans-serif;
+}
+
+.fod-result-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Arimo', sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* -- Range bar visual -------------------------------------- */
+.fod-range-bar-wrap {
+  width: 100%;
+  margin: 12px 0 4px;
+}
+
+.fod-range-bar-track {
+  position: relative;
+  height: 16px;
+  background: linear-gradient(90deg, #0D9186 0%, #059669 40%, #D97706 70%, #DC2626 100%);
+  border-radius: 8px;
+  overflow: visible;
+  margin-bottom: 6px;
+}
+
+.fod-range-bar-marker {
+  position: absolute;
+  top: 50%;
+  width: 4px;
+  height: 24px;
+  background: #243448;
+  border-radius: 2px;
+  transform: translate(-50%, -50%);
+  transition: left 0.35s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+}
+
+.fod-range-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #9CA3AF;
+  font-family: 'Arimo', sans-serif;
+}
+
+/* -- Split display ----------------------------------------- */
+.fod-split-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.fod-split-box {
+  flex: 1;
+  padding: 14px 16px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.fod-split-box-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  font-family: 'Familjen Grotesk', sans-serif;
+}
+
+.fod-split-box-value {
+  font-family: 'Familjen Grotesk', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.fod-split-box-sub {
+  font-size: 12px;
+  color: #6B7280;
+  margin-top: 2px;
+}
+
+.fod-split-basal {
+  background: rgba(13,145,134,0.08);
+  border: 1px solid rgba(13,145,134,0.2);
+}
+
+.fod-split-basal .fod-split-box-label { color: #0D9186; }
+.fod-split-basal .fod-split-box-value { color: #0D9186; }
+
+.fod-split-bolus {
+  background: rgba(245,161,8,0.08);
+  border: 1px solid rgba(245,161,8,0.25);
+}
+
+.fod-split-bolus .fod-split-box-label { color: #B45309; }
+.fod-split-bolus .fod-split-box-value { color: #B45309; }
+
+/* -- Interpretation ---------------------------------------- */
+.fod-interpretation {
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.7);
+  border-radius: 8px;
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.65;
+  border-left: 3px solid #0D9186;
+  transition: border-color 0.3s ease;
+}
+
+/* -- Empty state ------------------------------------------- */
+.fod-empty-state {
+  text-align: center;
+  padding: 24px 0 8px;
+  color: #9CA3AF;
+  font-size: 14px;
+}
+
+.fod-empty-icon {
+  font-size: 36px;
+  margin-bottom: 8px;
+  opacity: 0.4;
+}
+
+/* -- How it works ------------------------------------------ */
+.fod-formula {
+  background: #F9FAFB;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 14px 0;
+  font-family: monospace;
+  font-size: 14px;
+  color: #243448;
+  border: 1px solid #E5E7EB;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.fod-body-text {
+  font-size: 14px;
+  color: #4B5563;
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+/* -- Learn more card --------------------------------------- */
+.fod-learn-card {
+  background: #243448;
+  color: #FFFFFF;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.fod-learn-card .fod-section-label {
+  color: #F5A108;
+}
+
+.fod-learn-card p {
+  font-size: 14px;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 16px;
+  line-height: 1.65;
+}
+
+.fod-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #F5A108;
+  color: #1F2937;
+  font-family: 'Familjen Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.1s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.fod-cta-btn:hover {
+  background: #e8960a;
+  transform: translateY(-1px);
+}
+
+.fod-cta-arrow {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* -- Related calculators ----------------------------------- */
+/* -- Disclaimer -------------------------------------------- */
+.fod-disclaimer {
+  margin-top: 8px;
+  padding: 16px;
+  background: #FFF7ED;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #92400E;
+  line-height: 1.6;
+  border: 1px solid #FED7AA;
+}
+
+.fod-disclaimer strong {
+  color: #78350F;
+}
+
+/* -- Footer ------------------------------------------------ */
+.fod-footer {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 12px;
+  color: #D1D5DB;
+  font-family: 'Arimo', sans-serif;
+  letter-spacing: 0.04em;
+}
+
+.fod-footer a {
+  color: #0D9186;
+  text-decoration: none;
+  opacity: 0.7;
+}
+
+/* -- Divider ----------------------------------------------- */
+.fod-divider {
+  height: 1px;
+  background: #E5E7EB;
+  margin: 14px 0;
+}
+
+/* -- Responsive -------------------------------------------- */
+@media (max-width: 480px) {
+  .fod-calc-wrapper {
+    padding: 0 8px 32px;
+  }
+  .fod-card {
+    padding: 18px 16px;
+  }
+  .fod-unit-btn {
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .fod-split-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* === FOD branded header (added by standardizer) === */
+.fod-calc-wrapper .fod-brand-header{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  margin-bottom:24px;
+  padding:8px 0;
+  flex-wrap:wrap;
+}
+.fod-calc-wrapper .fod-brand-logo{
+  flex:0 0 auto;
+  width:160px;
+  max-width:100%;
+  height:auto;
+  display:block;
+}
+.fod-calc-wrapper .fod-brand-text{
+  flex:1 1 280px;
+  min-width:240px;
+}
+.fod-calc-wrapper .fod-brand-text h1{
+  font-family:'Familjen Grotesk', Arial, sans-serif;
+  font-weight:700;
+  font-size:clamp(20px, 3.6vw, 28px);
+  color:#0D9186;
+  line-height:1.2;
+  margin:0 0 6px 0;
+}
+.fod-calc-wrapper .fod-brand-text p.fod-brand-desc{
+  font-family:'Arimo', sans-serif;
+  font-size:15px;
+  color:#374151;
+  line-height:1.5;
+  margin:0 0 6px 0;
+}
+.fod-calc-wrapper .fod-brand-text p.fod-brand-edu{
+  font-family:'Arimo', sans-serif;
+  font-size:13px;
+  color:#6B7280;
+  font-style:normal;
+  margin:0;
+}
+@media (max-width: 520px){
+  .fod-calc-wrapper .fod-brand-header{ gap:14px; }
+  .fod-calc-wrapper .fod-brand-logo{ width:120px; }
+}
+@media (max-width: 380px){
+  .fod-calc-wrapper .fod-brand-header{ flex-direction:column; align-items:flex-start; }
+  .fod-calc-wrapper .fod-brand-logo{ width:140px; }
+}
+/* Reset button styling */
+.fod-calc-wrapper .fod-reset-btn{
+  margin-top:14px;
+  background:#FFFFFF;
+  color:#0D9186;
+  border:1.5px solid #0D9186;
+  border-radius:8px;
+  padding:10px 18px;
+  font-family:'Familjen Grotesk', Arial, sans-serif;
+  font-weight:700;
+  font-size:14px;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition: background 0.15s, color 0.15s;
+  min-height:44px;
+}
+.fod-calc-wrapper .fod-reset-btn:hover,
+.fod-calc-wrapper .fod-reset-btn:focus{
+  background:#0D9186;
+  color:#FFFFFF;
+  outline: none;
+}
+
+</style>
+
+<!-- -- Chart.js CDN --------------------------------------- -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+<!-- -- Calculator HTML ----------------------------------- -->
+<div class="fod-calc-wrapper" role="main">
+  <div class="fod-calc-inner">
+
+    <!-- Accent bar -->
+    <div class="fod-accent-bar" aria-hidden="true"></div>
+
+    <header class="fod-brand-header" role="banner">
+      <img class="fod-brand-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCADAAlgDASIAAhEBAxEB/8QAHQABAAICAwEBAAAAAAAAAAAAAAcIBQYCAwQBCf/EAFsQAAEDAwEEBQYGCgwNAwUAAAEAAgMEBREGBxIhMQgTQVFhFCIycYGRFUKhsbLRFiM3UmJ0dYKUsxckJzM1NkNTcqLB0iU0RFVWY2Rlc4SSwsNUk/AmRUaj4f/EABoBAQACAwEAAAAAAAAAAAAAAAADBAECBQb/xAA3EQACAgIABAIGCgICAwEAAAAAAQIDBBEFEiExE0EUIjJRcZEjMzRSYYGhwdHwFUIGsTXh8WL/2gAMAwEAAhEDEQA/ALlIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIuJc0O3S4A92eKA5Iiwmtr2NP6dqLiGh0owyFp5Oe7gM+Hb7FpZZGuDnLsjeuuVk1CPdmSrq+ioWB9ZVwU4PLrHhufeuFBdLbXkiirqeocOxkgJ9yrtVXCruFY+rrqh887zlz3nPu7h4LvpqiSKRssUjo5GnLXNOCD4Fecf/IXz9IdP1PTr/jXqdZ+t8OhY5Fq2znUMl8tT46p29V0xDZHffg8nevgc+pbSvQ0XRurVkezPNX0zosdc+6CIilIgiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIuqrqIaSllqqh4jhiYXvceQAGSUB2ooprtp1wmq3G20lPFTA+Z1wLnuHecEY9S3HROqotQRSRSxCCsiAc9jTlrm/fD6llpruF1W0Y/axqeo0/aoKegcGVlYXBsmM9WwcyPHiAFDJr6uaczTVU0kpOS90hLs+vKlnbXYam5WqmudHG6WShLusY0ZJjdjJA7cED2KFg8cwQvG8blb6Rpvp5HsuBRp9H2l18yYtkuqqyuqH2W4zOnc2MvglecuwObSe3vHtXu23U8s2jmzRgltPVMkkA+9ILc+8ha1sRs1XLdH3yWN0dJFE6OJxGOsc7njvAHb3lS1WU0FZSS0lTE2WGVhY9juTgeYXXwq7cnAcLH1e9fscjNsqxuIKypdFpv9yr7JPFemOVbrqLZVdqarfJY5oqylJy2OV+5IzwyeDvXwXns+zHUlTUtbXCCggz5zzIHux4NH9pXmnwzLjPk5H+3zPVLiuHKHP4i/f5Gw7EIZXS3Orweq3WRA97uJ+b51J6x+nrRR2O1RW6iYRFHxLncXPcebj4lZBe0wcd49Ea33R4bPyVk5ErV2YREVsphERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBEXg1BcG2mx11zewvFLA+XdHxsDOFlJt6RiUlFNs9yxerbfLddM3G3QO3ZZ4HMZ6+wf2KA/s81XUXA1zrzURvLt4RMIETfDd5EetTxou7vvumKK6SMaySZn2wN5bwJBx4ZCuZGFZipSkUcbPqym4RIADZKed8E7HRTRndex4w5p7iFIux6hqZbpNc9xzaaOIxB/Y9xI4Dvxj5lItdabXXSCWtt1JUyDk6WFrj7yvXDFHDE2KKNkcbRhrWtAA9QChttjNdF1LNUJQ6NnNYio0zp6oq/KprLQSTZyXmBuSe8rLoq0oRl7S2WIzlH2Xo4xsZGxrGNa1rRgBowAFyRFsahERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQHVU1EFNF1tTPFDHnG9I8NHvK41EVNX0UkEoZNTzxljhnIe0jB+RQb0kaW9u1BQ1RiqJbQKfdjLGlzI5d4729jkSN3BPYFtvR5ivEWkaj4QjmjpXVGaNsoIO7jziAeIbnl7Vfnh8mMr1Lv5HPhm8+S8dx/Mx8uxmMXAmnvr2URdkMfDvSNHdnOD68KUbPbqW02ynt1Ewsp6dgYwE5PrPiea9aKG/LuvSVkt6JsfCox25Vx02ERFWLQRFpG13aLatnlhbWVbDU11SSyjpGuwZXDmSfitHDJ8QBxK3rhKySjFbbNZSUFzPsbsvjXscSGua4j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" alt="Figuring Out Diabetes logo" width="600" height="192" />
+      <div class="fod-brand-text">
+        <h1>Total Daily Insulin Dose Calculator</h1>
+        <p class="fod-brand-desc">Estimate your Total Daily Dose (TDD) of insulin based on body weight, diabetes type, and insulin sensitivity  -  a key starting point for dosing calculations.</p>
+        <p class="fod-brand-edu">Educational estimator only - not medical advice.</p>
+      </div>
+    </header>
+
+    <!-- -- INPUT CARD -- -->
+    <div class="fod-card" role="region" aria-label="Calculator inputs">
+      <div class="fod-section-label">Your Inputs</div>
+
+      <!-- Weight -->
+      <div class="fod-field-group">
+        <label class="fod-field-label" for="tdd-weight">
+          Body Weight
+          <span class="fod-field-hint">used for estimation</span>
+        </label>
+        <div class="fod-input-row">
+          <input
+            id="tdd-weight"
+            class="fod-input"
+            type="number"
+            min="20"
+            max="300"
+            step="0.5"
+            value="70"
+            placeholder="e.g. 70"
+            inputmode="decimal"
+            aria-label="Body weight"
+            autocomplete="off"
+          />
+          <div class="fod-unit-toggle" role="group" aria-label="Weight unit selection">
+            <button
+              class="fod-unit-btn active"
+              id="tdd-btn-kg"
+              type="button"
+              aria-pressed="true"
+              onclick="tddSetUnit('kg')"
+            >kg</button>
+            <button
+              class="fod-unit-btn"
+              id="tdd-btn-lb"
+              type="button"
+              aria-pressed="false"
+              onclick="tddSetUnit('lb')"
+            >lb</button>
+          </div>
+        </div>
+        <p class="fod-range-hint" id="tdd-weight-hint">Range: 20-300 kg</p>
+      </div>
+
+      <!-- Diabetes type -->
+      <div class="fod-field-group">
+        <label class="fod-field-label" for="tdd-type">Diabetes Type</label>
+        <select id="tdd-type" class="fod-select" aria-label="Diabetes type" onchange="tddUpdate()">
+          <option value="t1">Type 1 Diabetes</option>
+          <option value="t2">Type 2 Diabetes</option>
+        </select>
+      </div>
+
+      <!-- Insulin sensitivity -->
+      <div class="fod-field-group">
+        <label class="fod-field-label" for="tdd-sensitivity">
+          Insulin Sensitivity
+          <span class="fod-field-hint">how well your body responds to insulin</span>
+        </label>
+        <select id="tdd-sensitivity" class="fod-select" aria-label="Insulin sensitivity" onchange="tddUpdate()">
+          <option value="normal">Normal / Average</option>
+          <option value="resistant">Insulin Resistant</option>
+          <option value="sensitive">Insulin Sensitive</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- -- RESULT CARD -- -->
+    <div class="fod-card fod-card-result" role="region" aria-label="Calculator result" aria-live="polite">
+      <div class="fod-section-label">Your Estimated TDD</div>
+
+      <!-- Empty state -->
+      <div class="fod-empty-state" id="tdd-empty-state">
+        <div class="fod-empty-icon" aria-hidden="true"></div>
+        <p>Enter your weight above to see your estimated Total Daily Insulin Dose.</p>
+      </div>
+
+      <!-- Result -->
+      <div id="tdd-result-section" style="display:none;">
+        <div class="fod-result-main">
+          <div class="fod-result-value">
+            <div class="fod-result-number" id="tdd-result-number" style="color:#0D9186;"> - </div>
+            <div class="fod-result-label">units/day (estimated range)</div>
+            <span class="fod-result-badge" id="tdd-result-badge"> - </span>
+          </div>
+        </div>
+
+        <!-- Range bar -->
+        <div class="fod-range-bar-wrap" aria-hidden="true">
+          <div class="fod-range-bar-track">
+            <div class="fod-range-bar-marker" id="tdd-bar-marker" style="left:50%;"></div>
+          </div>
+          <div class="fod-range-bar-labels">
+            <span>Low TDD</span>
+            <span>Moderate</span>
+            <span>High TDD</span>
+          </div>
+        </div>
+
+        <div class="fod-divider"></div>
+
+        <!-- Basal/Bolus split -->
+        <div style="font-size:13px;color:#6B7280;font-family:'Arimo',sans-serif;margin-bottom:8px;">Suggested Basal / Bolus Split (50/50)</div>
+        <div class="fod-split-row">
+          <div class="fod-split-box fod-split-basal">
+            <div class="fod-split-box-label">Basal (50%)</div>
+            <div class="fod-split-box-value" id="tdd-basal-val"> - </div>
+            <div class="fod-split-box-sub">units/day</div>
+          </div>
+          <div class="fod-split-box fod-split-bolus">
+            <div class="fod-split-box-label">Bolus (50%)</div>
+            <div class="fod-split-box-value" id="tdd-bolus-val"> - </div>
+            <div class="fod-split-box-sub">units/day</div>
+          </div>
+        </div>
+
+        <div class="fod-divider"></div>
+
+        <!-- Interpretation -->
+        <div class="fod-interpretation" id="tdd-interpretation" role="status"></div>
+      </div>
+    </div>
+
+    <!-- -- HOW IT WORKS -- -->
+    <div class="fod-card" role="region" aria-label="How this works">
+      <div class="fod-section-label">How This Works</div>
+      <p class="fod-body-text">
+        This calculator uses the weight-based TDD estimation method. The multiplier varies by diabetes type and insulin sensitivity:
+      </p>
+      <div class="fod-formula" aria-label="TDD formula">
+        TDD = Weight (kg) x Factor
+      </div>
+      <p class="fod-body-text"><strong>Type 1 Diabetes factors:</strong></p>
+      <ul style="font-size:14px;color:#4B5563;line-height:1.7;padding-left:20px;margin-bottom:10px;">
+        <li>Insulin sensitive: 0.4 units/kg/day</li>
+        <li>Normal: 0.5 units/kg/day</li>
+        <li>Insulin resistant: 0.6 units/kg/day</li>
+      </ul>
+      <p class="fod-body-text"><strong>Type 2 Diabetes factors:</strong></p>
+      <ul style="font-size:14px;color:#4B5563;line-height:1.7;padding-left:20px;margin-bottom:10px;">
+        <li>Insulin sensitive: 0.5 units/kg/day</li>
+        <li>Normal: 0.7 units/kg/day</li>
+        <li>Insulin resistant: 1.0 units/kg/day</li>
+      </ul>
+      <p class="fod-body-text" style="margin-bottom:0;">
+        The result is a starting estimate only. Many factors  -  activity level, diet composition, stress, hormones, medications, and illness  -  will shift your actual TDD significantly. Always titrate insulin under medical supervision.
+      </p>
+    </div>
+
+    <!-- -- WHY TDD MATTERS -- -->
+    <div class="fod-card" role="region" aria-label="Why TDD matters">
+      <div class="fod-section-label">Why TDD Matters</div>
+      <p class="fod-body-text">
+        TDD is the foundation of all other insulin calculations. Your Insulin-to-Carb Ratio (ICR = 500 / TDD) and Correction Factor (CF = 1800 / TDD for rapid-acting) both derive directly from your TDD.
+      </p>
+      <p class="fod-body-text">
+        People with Type 2 diabetes frequently require higher TDDs due to insulin resistance  -  the body's cells respond less efficiently to insulin signals, requiring more insulin to achieve the same glucose-lowering effect.
+      </p>
+      <p class="fod-body-text" style="margin-bottom:0;">
+        TDD should be reassessed regularly. Weight changes, fitness improvements, new medications, and changes in diet can all alter your insulin requirements over time.
+      </p>
+    </div>
+
+    <!-- -- LEARN MORE -- -->
+    <div class="fod-learn-card" role="complementary" aria-label="Learn more">
+      <div class="fod-section-label"> &nbsp;Learn More</div>
+      <p>
+        Understand how your Total Daily Insulin Dose connects to every aspect of your diabetes management  -  from ICR and correction factors to basal/bolus ratios. Covered in depth in the FOD Trilogy.
+      </p>
+      <a class="fod-cta-btn" href="https://figuringoutdiabetes.com" target="_blank" rel="noopener noreferrer" aria-label="View FOD Trilogy on figuringoutdiabetes.com">
+        FOD Mature  -  Ch. 11: Insulin
+        <span class="fod-cta-arrow" aria-hidden="true">-></span>
+      </a>
+    </div>
+    <!-- Reset button (added by standardizer) -->
+    <div style="text-align:center; margin: 18px 0 8px;">
+      <button type="button" class="fod-reset-btn" onclick="if(confirm('Reset all inputs to their defaults?')) { window.location.reload(); }" aria-label="Reset calculator inputs">Reset Calculator</button>
+    </div>
+
+    <!-- -- DISCLAIMER -- -->
+    <div class="fod-disclaimer" role="note">
+      <strong>! Important Medical Disclaimer</strong><br/>
+      This calculator provides educational estimates only and is NOT a substitute for professional medical advice. Insulin dosing is safety-critical  -  incorrect doses can cause severe hypoglycemia or hyperglycemia, both of which can be life-threatening. Never adjust your insulin regimen without consulting your diabetes care team, endocrinologist, or qualified healthcare provider. Always verify any calculated dose with your prescribing clinician before use.
+    </div>
+
+    <!-- -- FOOTER -- -->
+    <footer class="fod-footer">
+      <a href="https://figuringoutdiabetes.com" target="_blank" rel="noopener noreferrer">
+        figuringoutdiabetes.com
+      </a>
+    </footer>
+
+  </div><!-- .fod-calc-inner -->
+</div><!-- .fod-calc-wrapper -->
+
+<!-- -- JavaScript -------------------------------------------- -->
+<script>
+(function() {
+  'use strict';
+
+  /* -- State ----------------------------------------------- */
+  var tddUnit = 'kg';
+
+  /* -- Factors table ---------------------------------------- */
+  var FACTORS = {
+    t1: { sensitive: 0.4, normal: 0.5, resistant: 0.6 },
+    t2: { sensitive: 0.5, normal: 0.7, resistant: 1.0 }
+  };
+
+  /* -- Range thresholds for bar (units/day) --------------- */
+  var BAR_MIN = 0;
+  var BAR_MAX = 120;
+
+  /* -- Calculation ------------------------------------------ */
+  function calcTDD(weightKg, type, sensitivity) {
+    var factor = FACTORS[type][sensitivity];
+    var midTDD = weightKg * factor;
+    /* +/-15% range */
+    var low  = Math.round(midTDD * 0.85);
+    var mid  = Math.round(midTDD);
+    var high = Math.round(midTDD * 1.15);
+    return { low: low, mid: mid, high: high, factor: factor };
+  }
+
+  function getZone(mid) {
+    if (mid < 20)  return { label: 'Very Low TDD',  color: '#0D9186', badge: 'rgba(13,145,134,0.12)', text: '#065F46' };
+    if (mid < 50)  return { label: 'Low-Moderate',  color: '#059669', badge: 'rgba(5,150,105,0.12)',  text: '#065F46' };
+    if (mid < 80)  return { label: 'Moderate TDD',  color: '#D97706', badge: 'rgba(217,119,6,0.12)',  text: '#92400E' };
+    return             { label: 'High TDD',          color: '#DC2626', badge: 'rgba(220,38,38,0.12)',  text: '#991B1B' };
+  }
+
+  /* -- Main update ------------------------------------------ */
+  function tddUpdate() {
+    var weightInput = document.getElementById('tdd-weight');
+    var emptyEl     = document.getElementById('tdd-empty-state');
+    var resultEl    = document.getElementById('tdd-result-section');
+    var numberEl    = document.getElementById('tdd-result-number');
+    var badgeEl     = document.getElementById('tdd-result-badge');
+    var interpEl    = document.getElementById('tdd-interpretation');
+    var markerEl    = document.getElementById('tdd-bar-marker');
+    var basalEl     = document.getElementById('tdd-basal-val');
+    var bolusEl     = document.getElementById('tdd-bolus-val');
+
+    var typeEl        = document.getElementById('tdd-type');
+    var sensitivityEl = document.getElementById('tdd-sensitivity');
+
+    var rawWeight = parseFloat(weightInput.value);
+    var type      = typeEl.value;
+    var sens      = sensitivityEl.value;
+
+    var minW = (tddUnit === 'lb') ? 44 : 20;
+    var maxW = (tddUnit === 'lb') ? 660 : 300;
+
+    if (!weightInput.value || isNaN(rawWeight) || rawWeight < minW || rawWeight > maxW) {
+      emptyEl.style.display  = 'block';
+      resultEl.style.display = 'none';
+      return;
+    }
+
+    /* Convert to kg if needed */
+    var weightKg = (tddUnit === 'lb') ? rawWeight / 2.20462 : rawWeight;
+
+    var result = calcTDD(weightKg, type, sens);
+    var zone   = getZone(result.mid);
+
+    emptyEl.style.display  = 'none';
+    resultEl.style.display = 'block';
+
+    /* Main number */
+    numberEl.textContent = result.low + '-' + result.high + ' units';
+    numberEl.style.color = zone.color;
+
+    /* Badge */
+    badgeEl.textContent      = zone.label;
+    badgeEl.style.background = zone.badge;
+    badgeEl.style.color      = zone.text;
+
+    /* Bar marker */
+    var pct = Math.min(Math.max((result.mid - BAR_MIN) / (BAR_MAX - BAR_MIN) * 100, 2), 98);
+    markerEl.style.left = pct + '%';
+
+    /* Basal/Bolus */
+    var basal = Math.round(result.mid * 0.5);
+    var bolus = result.mid - basal;
+    basalEl.textContent = basal;
+    bolusEl.textContent = bolus;
+
+    /* Interpretation */
+    var typeLabel = (type === 't1') ? 'Type 1' : 'Type 2';
+    var sensLabels = { sensitive: 'insulin sensitive', normal: 'average sensitivity', resistant: 'insulin resistant' };
+    var sensLabel  = sensLabels[sens];
+
+    interpEl.innerHTML = 'For a <strong>' + (tddUnit === 'lb' ? rawWeight + ' lb' : rawWeight + ' kg') + '</strong> person with <strong>' + typeLabel + '</strong> diabetes and <strong>' + sensLabel + '</strong>, the estimated TDD is <strong>' + result.low + '-' + result.high + ' units/day</strong> (midpoint: ' + result.mid + ' units). Using a 50/50 basal/bolus split, that suggests approximately <strong>' + basal + ' units of basal</strong> and <strong>' + bolus + ' units of bolus</strong> insulin daily. This is a starting estimate  -  your actual requirements will vary based on diet, activity, and individual response.';
+    interpEl.style.borderColor = zone.color;
+  }
+
+  /* -- Unit toggle ------------------------------------------- */
+  window.tddSetUnit = function(unit) {
+    if (unit === tddUnit) return;
+    var input  = document.getElementById('tdd-weight');
+    var btnKg  = document.getElementById('tdd-btn-kg');
+    var btnLb  = document.getElementById('tdd-btn-lb');
+    var hintEl = document.getElementById('tdd-weight-hint');
+    var raw    = parseFloat(input.value);
+
+    if (unit === 'lb') {
+      tddUnit = 'lb';
+      btnKg.classList.remove('active');
+      btnLb.classList.add('active');
+      btnKg.setAttribute('aria-pressed', 'false');
+      btnLb.setAttribute('aria-pressed', 'true');
+      hintEl.textContent = 'Range: 44-660 lb';
+      input.min  = '44';
+      input.max  = '660';
+      input.step = '1';
+      if (!isNaN(raw)) {
+        input.value = Math.round(raw * 2.20462);
+      } else {
+        input.value = '154';
+      }
+    } else {
+      tddUnit = 'kg';
+      btnLb.classList.remove('active');
+      btnKg.classList.add('active');
+      btnLb.setAttribute('aria-pressed', 'false');
+      btnKg.setAttribute('aria-pressed', 'true');
+      hintEl.textContent = 'Range: 20-300 kg';
+      input.min  = '20';
+      input.max  = '300';
+      input.step = '0.5';
+      if (!isNaN(raw)) {
+        input.value = (raw / 2.20462).toFixed(1);
+      } else {
+        input.value = '70';
+      }
+    }
+    tddUpdate();
+  };
+
+  /* -- Init --------------------------------------------------- */
+  function tddInit() {
+    var input = document.getElementById('tdd-weight');
+    if (!input) return;
+    input.addEventListener('input',  tddUpdate);
+    input.addEventListener('change', tddUpdate);
+    tddUpdate();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tddInit);
+  } else {
+    tddInit();
+  }
+
+})();
+</script>
+
+</body>
+</html>

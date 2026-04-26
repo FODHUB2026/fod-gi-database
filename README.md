@@ -1,81 +1,123 @@
-# FOD Glycemic Index Database
+# FOD — figuringOutDiabetes Tools
 
-A free, interactive, Indian-context Glycemic Index & Glycemic Load reference, with a built-in GL calculator.
+Free, evidence-based diabetes tools for busy people managing or at risk of diabetes. Designed for Squarespace embedding via iframe — no backend, no sign-up, no tracking.
 
-**Live demo:** _set after GitHub Pages is enabled_
+## What's here
 
-- **485 unique foods** · **547 food/preparation rows** · evidence-graded (A/B/C)
-- Search by English, Hindi (Latin), or alias
-- Filter by GI band, category, evidence quality, Indian-staple
-- Live GI / GL calculator with portion + servings inputs
-- Mobile-optimised (card layout under 640px)
-- Single self-contained `index.html` — no build step, no dependencies
-
----
-
-## How to publish on Squarespace
-
-### Option 1 — GitHub Pages + Embed Block (recommended, works on all Squarespace plans)
-
-1. **Create a new GitHub repo** named e.g. `fod-gi-database` (public).
-2. Upload `index.html` to the root of the repo.
-3. In the repo: **Settings → Pages → Build from `main` branch → `/ (root)` → Save.**
-4. Wait ~1 minute. GitHub gives you a URL like
-   `https://<your-username>.github.io/fod-gi-database/`
-5. Open that URL in a new tab to confirm it loads.
-6. In Squarespace: **Edit page → Insert block → Embed → "Code Snippet" / "iframe"** and paste:
-
-   ```html
-   <iframe
-     src="https://<your-username>.github.io/fod-gi-database/"
-     style="width:100%;height:1600px;border:0;display:block"
-     loading="lazy"
-     title="FOD Glycemic Index Database">
-   </iframe>
-   ```
-
-7. Adjust `height:1600px` if your page needs more/less vertical space.
-
-> **Tip:** Squarespace's basic Embed Block sometimes only takes a URL. Use the **Code Block** (Business plan +) for the iframe snippet above, or use the **Embed Block** with just the URL — Squarespace will auto-iframe it.
-
-### Option 2 — Paste full HTML into a Code Block (Business plan and above)
-
-Open `index.html`, copy everything, paste into a Squarespace Code Block. No GitHub needed — but every update means re-pasting.
+| | URL | What it is |
+|---|---|---|
+| 🍚 | **[/](https://fodhub2026.github.io/fod-gi-database/)** | **GI Database** — 485 foods, 547 rows, Indian-context GI/GL reference with built-in calculator |
+| 🧮 | **[/calculators/](https://fodhub2026.github.io/fod-gi-database/calculators/)** | **Calculator hub** — directory of all 69 FOD calculators, grouped by category |
+| | `/calculators/<slug>.html` | One self-contained page per calculator (69 of them) |
 
 ---
 
-## How to update the database
+## Live URLs
 
-When new GI data arrives, you regenerate `index.html` and push the updated file. The Squarespace embed updates instantly because it points to the same URL.
+### Top-level
 
-**Workflow:**
-1. Send the new food rows (or updated CSVs) to your AI builder.
-2. Get a fresh `index.html`.
-3. In GitHub: open `index.html` → **Edit (pencil icon)** → paste the new content → Commit. Done.
+- **GI Database:** https://fodhub2026.github.io/fod-gi-database/
+- **Calculator hub:** https://fodhub2026.github.io/fod-gi-database/calculators/
+
+### Individual calculators (69)
+
+Each lives at `https://fodhub2026.github.io/fod-gi-database/calculators/<slug>.html`
+
+**Carbs & food**
+`glycemic-load` · `gi-impact-estimator` · `net-carbs` · `carb-counting` · `fiber-intake` · `portion-to-carb` · `sugar-equivalent` · `recipe-gi-estimator` · `indian-food-gi-lookup` · `meal-spike-predictor` · `protein-fat-delay`
+
+**Insulin & dosing**
+`insulin-to-carb-ratio` · `correction-factor` · `insulin-sensitivity-factor` · `total-daily-insulin` · `basal-bolus-split` · `insulin-dose-adjustment` · `insulin-stacking-risk` · `missed-dose-impact` · `injection-timing-impact`
+
+**Glucose monitoring**
+`hba1c-to-glucose` · `estimated-hba1c` · `hba1c-timeline` · `time-in-range` · `glucose-variability` · `average-blood-glucose` · `cgm-dashboard` · `hypo-frequency` · `hyper-frequency` · `fasting-vs-postmeal` · `consistency-score`
+
+**Risk & complications**
+`cv-risk` · `complication-risk` · `foot-risk` · `pre-diabetes-risk` · `hypo-risk-score` · `fasting-risk` · `sedentary-risk` · `remission-probability` · `diabetes-type-assessment` · `egfr` · `medication-eligibility`
+
+**Body & metabolism**
+`bmi` · `bmr` · `body-fat-percentage` · `ideal-body-weight` · `daily-calorie-requirement` · `steps-to-calories` · `walking-impact` · `exercise-glucose-drop`
+
+**Lifestyle & context**
+`sleep-glucose` · `stress-impact` · `hydration-impact` · `alcohol-impact` · `sick-day-impact` · `ramadan-fasting-risk` · `shift-work-adjustment` · `travel-timezone`
+
+**Cost & access**
+`annual-cost` · `monthly-cost` · `cost-per-reading` · `insurance-vs-selfpay` · `non-adherence-cost`
+
+**Special situations & support**
+`pregnancy-bg-targets` · `diabetes-distress` · `caregiver-burden` · `emergency-plan` · `bad-day-recovery` · `shared-glucose-review`
+
+---
+
+## How to embed in Squarespace
+
+Each tool is iframe-friendly. Use a **Code Block** (Business plan +) or **Embed Block**.
+
+### Embed the GI database
+```html
+<iframe src="https://fodhub2026.github.io/fod-gi-database/"
+  style="width:100%;height:1600px;border:0;display:block"
+  loading="lazy" title="FOD GI Database"></iframe>
+```
+
+### Embed the calculator hub (browse all 69)
+```html
+<iframe src="https://fodhub2026.github.io/fod-gi-database/calculators/"
+  style="width:100%;height:2200px;border:0;display:block"
+  loading="lazy" title="FOD Calculators"></iframe>
+```
+
+### Embed a single calculator (example: Glycemic Load)
+```html
+<iframe src="https://fodhub2026.github.io/fod-gi-database/calculators/glycemic-load.html"
+  style="width:100%;height:1400px;border:0;display:block"
+  loading="lazy" title="Glycemic Load Calculator"></iframe>
+```
+
+Adjust `height` per page. Most calculators sit between 1200–1800 px tall.
+
+### Recommended Squarespace structure
+
+- `/tools` page → embed the **calculator hub** so visitors can browse all 69
+- `/tools/glycemic-load` page → embed the **single calculator** with surrounding intro / FAQ for SEO
+- `/tools/bmi` page → same pattern, deep-link your top calculators for organic search
+
+---
+
+## Updating in the future
+
+When new data or new calculators arrive:
+1. Send the new file(s) to your AI builder.
+2. Get a fresh single-file HTML.
+3. In GitHub: open the file → **Edit** (pencil) → paste new content → Commit.
+4. GitHub Pages rebuilds in ~30s. Squarespace embed updates automatically.
 
 ---
 
 ## Files in this repo
 
-| File | What it is |
+| Path | Notes |
 |---|---|
-| `index.html` | The interactive database (single file, ~600 KB, includes data + logo + JS) |
+| `index.html` | GI Database — single self-contained page (~600 KB, includes data + logo + JS) |
+| `calculators/index.html` | Calculator hub — searchable, categorised |
+| `calculators/<slug>.html` | 69 individual calculators, each ~50 KB |
+| `calculators/AUDIT-SUMMARY.md` | Build report (per-calculator audit) |
 | `README.md` | This file |
 
 ---
 
-## Data sources
+## Data sources & methodology
 
-- **Atkinson FS, Foster-Powell K, Brand-Miller JC.** *International tables of glycemic index and glycemic load values 2021.* Am J Clin Nutr. (DOI: 10.1093/ajcn/nqab233)
-- **ICMR-NIN** Indian Food Composition Tables
-- Peer-reviewed Indian glycemic studies indexed in PubMed
-- See `figuringOutDiabetes.com` for full methodology
+- Atkinson FS, Foster-Powell K, Brand-Miller JC. *International tables of glycemic index and glycemic load values 2021.* Am J Clin Nutr. (DOI: 10.1093/ajcn/nqab233)
+- ICMR-NIN Indian Food Composition Tables
+- Peer-reviewed Indian glycemic studies (PubMed)
+- Calculator formulas follow standard clinical references (ADA, IDF, Lloyd-Jones for CV risk, IDF-DAR for Ramadan, etc.)
 
 ---
 
 ## Disclaimer
 
-Educational reference. **Not medical advice.** Always confirm dietary decisions with your clinician or registered dietitian. GI/GL responses are individual — what matters more than any single number is the overall meal pattern, fiber, protein, fat, and your post-meal movement.
+Educational reference. **Not medical advice.** Always confirm with your clinician or registered dietitian. GI/GL responses and dosing needs are individual.
 
 ---
 
