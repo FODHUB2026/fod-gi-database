@@ -237,18 +237,23 @@ function render(){
   let rows = DATA.slice();
   if(state.q){
     const q = state.q.toLowerCase();
+    const s = v => {
+      if(v == null) return '';
+      if(Array.isArray(v)) return v.join(' ').toLowerCase();
+      return String(v).toLowerCase();
+    };
     rows = rows.filter(r => {
-      const name = (r.name||r.food_name||'').toLowerCase();
-      const aliases = (r.aliases||'').toLowerCase();
-      const hi = (r.hi||'').toLowerCase();
-      const form = (r.form||'').toLowerCase();
+      const name = s(r.name || r.food_name);
+      const aliases = s(r.aliases);
+      const hi = s(r.hi);
+      const form = s(r.form);
       return name.includes(q) || aliases.includes(q) || hi.includes(q) || form.includes(q);
     });
   }
   if(state.filter==='low') rows = rows.filter(r => r.gi != null && r.gi <= 55);
   else if(state.filter==='med') rows = rows.filter(r => r.gi != null && r.gi > 55 && r.gi <= 69);
   else if(state.filter==='high') rows = rows.filter(r => r.gi != null && r.gi >= 70);
-  if(state.sort==='name') rows.sort((a,b) => (a.name||a.food_name||'').localeCompare(b.name||b.food_name||''));
+  if(state.sort==='name') rows.sort((a,b) => String(a.name||a.food_name||'').localeCompare(String(b.name||b.food_name||'')));
   else if(state.sort==='gi-asc') rows.sort((a,b) => (a.gi??999) - (b.gi??999));
   else if(state.sort==='gi-desc') rows.sort((a,b) => (b.gi??-1) - (a.gi??-1));
 
