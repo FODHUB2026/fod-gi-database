@@ -64,6 +64,10 @@ body{font-family:var(--fod-body);color:var(--fod-navy);font-size:17px;line-heigh
 .gi-filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0 12px;font-family:var(--fod-body);font-size:14px;color:var(--fod-muted)}
 .gi-filters .lbl{font-weight:600;color:var(--fod-navy);margin-right:4px}
 .gi-chip{font-family:var(--fod-body);font-size:13px;padding:7px 14px;border:1px solid var(--fod-line);border-radius:99px;background:var(--fod-white);color:var(--fod-navy);cursor:pointer;user-select:none;white-space:nowrap;transition:all .15s}
+.gi-select{font-family:var(--fod-body);font-size:13px;padding:7px 32px 7px 14px;border:1px solid var(--fod-line);border-radius:99px;background:var(--fod-white) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%231f2a44' d='M0 0l5 6 5-6z'/></svg>") no-repeat right 12px center;color:var(--fod-navy);cursor:pointer;appearance:none;-webkit-appearance:none;-moz-appearance:none;transition:all .15s;min-width:170px}
+.gi-select:hover{border-color:var(--fod-navy)}
+.gi-select:focus{outline:none;border-color:var(--fod-navy);box-shadow:0 0 0 3px rgba(31,42,68,.12)}
+.gi-select.active{background-color:var(--fod-navy);color:#fff;border-color:var(--fod-navy);background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%23ffffff' d='M0 0l5 6 5-6z'/></svg>")}
 .gi-chip:hover{border-color:var(--fod-teal);color:var(--fod-teal)}
 .gi-chip.active{background:var(--fod-teal);color:#fff;border-color:var(--fod-teal)}
 .gi-chip.accent.active{background:#F59E0B;border-color:#F59E0B}
@@ -147,6 +151,10 @@ body{font-family:var(--fod-body);color:var(--fod-navy);font-size:17px;line-heigh
     <button class="gi-chip" data-gi="low">Low (≤55)</button>
     <button class="gi-chip" data-gi="med">Medium (56–69)</button>
     <button class="gi-chip" data-gi="high">High (≥70)</button>
+    <span class="lbl" style="margin-left:14px">Type:</span>
+    <select class="gi-select" id="catSelect" aria-label="Filter by food type">
+      <option value="all">All food types</option>
+    </select>
     <span class="lbl" style="margin-left:14px">Sort:</span>
     <button class="gi-chip accent" data-sort="name" data-active="true">Name (A→Z)</button>
     <button class="gi-chip accent" data-sort="gi-asc">GI low→high</button>
@@ -220,7 +228,40 @@ const giClass = (gi) => gi <= 55 ? 'low' : gi <= 69 ? 'med' : 'high';
 const giPill = (gi) => `<span class="gi-pill pill-${giClass(gi)}">${giClass(gi)==='low'?'Low':giClass(gi)==='med'?'Medium':'High'}</span>`;
 const fmt = (n, d=1) => n == null ? '—' : Number(n).toFixed(d);
 
-const state = { q:'', filter:'all', sort:'name' };
+const state = { q:'', filter:'all', sort:'name', cat:'all' };
+
+// Pretty labels for category codes
+const CAT_LABELS = {
+  fruit:'Fruits', vegetable:'Vegetables', grain:'Grains & cereals',
+  legume:'Legumes & pulses', dairy:'Dairy', nut_seed:'Nuts & seeds',
+  beverage:'Beverages', sweet_dessert:'Sweets & desserts',
+  snack_processed:'Snacks (processed)', snack:'Snacks',
+  condiment_spice:'Condiments & spices', sweetener:'Sweeteners',
+  animal_product:'Animal products', mixed_dish:'Mixed dishes',
+  main:'Main dishes', breakfast:'Breakfast items', side:'Sides',
+  starter:'Starters', bread:'Breads'
+};
+const prettyCat = c => CAT_LABELS[c] || (c ? c.replace(/_/g,' ').replace(/\b\w/g, m=>m.toUpperCase()) : 'Other');
+
+// Auto-populate Type dropdown from data with counts
+(function populateCategorySelect(){
+  const sel = document.getElementById('catSelect');
+  if(!sel) return;
+  const counts = {};
+  for(const r of DATA){ const c = r.cat || 'other'; counts[c] = (counts[c]||0) + 1; }
+  const sorted = Object.keys(counts).sort((a,b) => prettyCat(a).localeCompare(prettyCat(b)));
+  for(const c of sorted){
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = `${prettyCat(c)} (${counts[c]})`;
+    sel.appendChild(opt);
+  }
+  sel.addEventListener('change', e => {
+    state.cat = e.target.value;
+    sel.classList.toggle('active', state.cat !== 'all');
+    render();
+  });
+})();
 
 function render(){
   let rows = DATA.slice();
@@ -242,6 +283,7 @@ function render(){
   if(state.filter==='low') rows = rows.filter(r => r.gi != null && r.gi <= 55);
   else if(state.filter==='med') rows = rows.filter(r => r.gi != null && r.gi > 55 && r.gi <= 69);
   else if(state.filter==='high') rows = rows.filter(r => r.gi != null && r.gi >= 70);
+  if(state.cat !== 'all') rows = rows.filter(r => r.cat === state.cat);
   if(state.sort==='name') rows.sort((a,b) => String(a.name||a.food_name||'').localeCompare(String(b.name||b.food_name||'')));
   else if(state.sort==='gi-asc') rows.sort((a,b) => (a.gi??999) - (b.gi??999));
   else if(state.sort==='gi-desc') rows.sort((a,b) => (b.gi??-1) - (a.gi??-1));
